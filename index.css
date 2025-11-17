@@ -18,6 +18,12 @@
     --success-color: #4caf50;
     --warning-color: #ffa000;
     --info-color: #1976d2;
+    --card-surface: #ffffff;
+    --card-border-strong: #e4e7ec;
+    --card-radius: 18px;
+    --card-shadow: 0 25px 45px rgba(15, 23, 42, 0.08);
+    --card-title-color: #101828;
+    --card-muted-color: #667085;
 
     --status-red: #ffebee;
     --status-red-text: #c62828;
@@ -372,15 +378,17 @@ body {
 }
 
 .review-card {
-    background-color: var(--white-color);
-    border-radius: 12px;
+    background-color: var(--card-surface);
+    border-radius: var(--card-radius);
     padding: 24px;
-    box-shadow: 0 4px 15px rgba(0,0,0,0.05);
-    border: 1px solid var(--border-color);
+    box-shadow: var(--card-shadow);
+    border: 1px solid var(--card-border-strong);
     display: flex;
     flex-direction: column;
     cursor: pointer;
     transition: transform 0.2s, box-shadow 0.2s, border-color 0.2s;
+    color: var(--card-title-color);
+    min-height: 240px;
 }
 
 .review-card:hover {
@@ -409,17 +417,17 @@ body {
 }
 
 .review-card-title {
-    font-size: 20px;
+    font-size: 18px;
     font-weight: 600;
-    color: #344054;
+    color: var(--card-title-color);
     line-height: 1.2;
 }
 
 .review-card-subtitle {
-    font-size: 18px;
-    font-weight: 600;
-    color: #344054;
-    line-height: 1;
+    font-size: 14px;
+    font-weight: 500;
+    color: var(--card-muted-color);
+    line-height: 1.2;
 }
 
 .review-card-badge {
@@ -449,10 +457,10 @@ body {
 
 
 .review-card-main-count {
-    font-size: 48px;
+    font-size: 40px;
     font-weight: 700;
     margin-bottom: 16px;
-    color: #101828;
+    color: var(--card-title-color);
 }
 
 .review-card-sub-counts {
@@ -1650,17 +1658,24 @@ legend {
 }
 
 .indicator-card {
-    background-color: #f9fafb;
-    border-radius: 12px;
-    padding: 20px;
+    background-color: var(--card-surface);
+    border-radius: var(--card-radius);
+    padding: 24px;
     text-align: center;
-    border: 1px solid var(--border-color);
+    border: 1px solid var(--card-border-strong);
+    box-shadow: var(--card-shadow);
+    min-height: 180px;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    gap: 12px;
+    color: var(--card-title-color);
 }
 
 .indicator-card h3 {
-    font-size: 14px;
+    font-size: 16px;
     font-weight: 500;
-    color: var(--light-text-color);
+    color: var(--card-muted-color);
     margin-bottom: 8px;
     min-height: 3em;
     display: flex;
@@ -1669,9 +1684,9 @@ legend {
 }
 
 .indicator-card .value {
-    font-size: 32px;
+    font-size: 36px;
     font-weight: 700;
-    color: var(--text-color);
+    color: var(--card-title-color);
     display: flex;
     align-items: center;
     justify-content: center;
@@ -1961,16 +1976,18 @@ legend {
 
 /* New Card styles for Mapa de Espera based on image */
 .espera-card-new {
-    background-color: var(--white-color);
-    border-radius: 16px;
-    padding: 20px;
-    box-shadow: 0 4px 15px rgba(0,0,0,0.05);
-    border: 1px solid var(--border-color);
+    background-color: var(--card-surface);
+    border-radius: var(--card-radius);
+    padding: 24px;
+    box-shadow: var(--card-shadow);
+    border: 1px solid var(--card-border-strong);
     display: flex;
     flex-direction: column;
-    gap: 12px;
+    gap: 16px;
     cursor: pointer;
     transition: transform 0.2s, box-shadow 0.2s, border-color 0.2s;
+    color: var(--card-title-color);
+    min-height: 220px;
 }
 
 .espera-card-new:hover {
@@ -2017,8 +2034,9 @@ legend {
 
 .espera-card-new .card-body .title {
     font-size: 16px;
-    font-weight: 500;
-    color: var(--text-color);
+    font-weight: 600;
+    color: var(--card-muted-color);
+    letter-spacing: 0.01em;
 }
 
 .espera-card-new .card-body .count-wrapper {
@@ -2028,20 +2046,21 @@ legend {
 }
 
 .espera-card-new .card-body .count-number {
-    font-size: 36px;
+    font-size: 40px;
     font-weight: 700;
     line-height: 1.2;
+    color: var(--card-title-color);
 }
 
 .espera-card-new .card-body .count-label {
-    font-size: 16px;
+    font-size: 14px;
     font-weight: 500;
-    color: var(--light-text-color);
+    color: var(--card-muted-color);
 }
 
 .espera-card-new .card-body .subtitle {
     font-size: 14px;
-    color: var(--light-text-color);
+    color: var(--card-muted-color);
 }
 
 /* Theme colors for new espera cards */

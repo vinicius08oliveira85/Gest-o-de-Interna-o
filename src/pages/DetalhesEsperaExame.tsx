@@ -1,4 +1,4 @@
-import React, { useState, useMemo } from 'react';
+import React, { useState, useMemo, useEffect } from 'react';
 import { Patient, User, EsperaExameDetalhes, TimelineHistoryEntry } from '../types/index.ts';
 import { calculateDaysBetween, formatDateDdMmYy } from '../utils/helpers.ts';
 import AppHeader from '../components/AppHeader.tsx';
@@ -21,12 +21,22 @@ const DetalhesEsperaExame = ({ patient, onBack, user, onUpdatePatient, showToast
     onUpdatePatient: (patient: Patient, user: User) => void,
     showToast: (message: string, type?: 'success' | 'error') => void
 }) => {
-    // Keep track of the initial state to compare on save
-    const [initialDetails] = useState<EsperaExameDetalhes>(patient.esperaExameDetalhes || {});
-    const [initialAguardandoExame] = useState<string>(patient.aguardandoExame || '');
+    // Keep track of the baseline state to compare on save
+    const [baselineDetails, setBaselineDetails] = useState<EsperaExameDetalhes>(patient.esperaExameDetalhes || {});
+    const [baselineAguardandoExame, setBaselineAguardandoExame] = useState<string>(patient.aguardandoExame || '');
 
     const [details, setDetails] = useState<EsperaExameDetalhes>(patient.esperaExameDetalhes || {});
     const [aguardandoExame, setAguardandoExame] = useState<string>(patient.aguardandoExame || '');
+
+    useEffect(() => {
+        const freshDetails = patient.esperaExameDetalhes || {};
+        const freshAguardando = patient.aguardandoExame || '';
+
+        setDetails(freshDetails);
+        setBaselineDetails(freshDetails);
+        setAguardandoExame(freshAguardando);
+        setBaselineAguardandoExame(freshAguardando);
+    }, [patient]);
 
     const handleInputChange = (e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement>) => {
         const { name, value } = e.target;
@@ -53,11 +63,11 @@ const DetalhesEsperaExame = ({ patient, onBack, user, onUpdatePatient, showToast
         const now = new Date().toISOString();
 
         // Compare aguardandoExame
-        if (initialAguardandoExame !== aguardandoExame) {
+        if (baselineAguardandoExame !== aguardandoExame) {
             newHistoryEntries.push({
                 data: now,
                 responsavel: user.name,
-                alteracao: `O campo '${fieldLabels.aguardandoExame}' foi alterado de '${initialAguardandoExame || 'vazio'}' para '${aguardandoExame || 'vazio'}'.`
+                alteracao: `O campo '${fieldLabels.aguardandoExame}' foi alterado de '${baselineAguardandoExame || 'vazio'}' para '${aguardandoExame || 'vazio'}'.`
             });
         }
         
@@ -68,7 +78,7 @@ const DetalhesEsperaExame = ({ patient, onBack, user, onUpdatePatient, showToast
                 continue;
             }
             
-            const initialValue = initialDetails[key];
+            const initialValue = baselineDetails[key];
             const currentValue = details[key];
 
             if (initialValue !== currentValue) {
@@ -98,6 +108,10 @@ const DetalhesEsperaExame = ({ patient, onBack, user, onUpdatePatient, showToast
         };
         onUpdatePatient(updatedPatient, user);
         showToast('Alterações salvas com sucesso!');
+
+        // Atualiza o baseline para refletir o último estado persistido
+        setBaselineDetails(details);
+        setBaselineAguardandoExame(aguardandoExame);
     };
 
     const tempoEspera = useMemo(() => calculateDaysBetween(details.dataInicio, details.dataFim), [details.dataInicio, details.dataFim]);

@@ -1,0 +1,438 @@
+import React, { useState, useMemo, useRef, useEffect } from 'react';
+import AppHeader from '../components/AppHeader.tsx';
+
+// --- DADOS DA HOSPITALIZAÇÃO SUB-COMPONENT (APP STYLE) ---
+const DadosHospitalizacaoDashboard = () => {
+    // Filter State & Handlers
+    const [startDate, setStartDate] = useState('');
+    const [endDate, setEndDate] = useState('');
+    const [tempStartDate, setTempStartDate] = useState('');
+    const [tempEndDate, setTempEndDate] = useState('');
+
+    const handleApplyFilters = () => {
+        setStartDate(tempStartDate);
+        setEndDate(tempEndDate);
+    };
+    const handleClearFilters = () => {
+        setTempStartDate('');
+        setTempEndDate('');
+        setStartDate('');
+        setEndDate('');
+    };
+
+    // Fix: Make children optional to handle cases where Widget is used without content.
+    const Widget = ({ title, children, className }: { title: string; children?: React.ReactNode; className?: string }) => (
+        <div className={`dh-widget ${className || ''}`}>
+            <h3 className="dh-widget-title">{title}</h3>
+            {children && <div className="dh-widget-content">{children}</div>}
+        </div>
+    );
+    
+    // Static Data
+    const carteiraData = { carteira: "98.219", totalInternado: 248, resultado: "2,52", cti: "0,64", mediaMes: "2,36", mediaMesCti: "0,70" };
+    const internacaoRedeData = [{ rede: 'REDE PREMIUM', qtd: 29, ocupacao: '11,69%' }, { rede: 'REDE BÁSICA', qtd: 219, ocupacao: '88,31%' }];
+    const naturezaGuiaData = [{ natureza: 'URGENCIA', total: 177, pacDia: "1,80" }, { natureza: 'ELETIVA', total: 32, pacDia: "0,33" }, { natureza: 'PSIQUIATRIA', total: 39, pacDia: "0,40" }];
+    const regimeData = [{ regime: 'URGENCIA', qtd: 216 }, { regime: 'ELETIVA', qtd: 32 }, { regime: 'TOTAL', qtd: 248 }];
+    const leitoData = [{ leito: 'UI', qtd: 185 }, { leito: 'USI', qtd: 0 }, { leito: 'CTI', qtd: 63 }, { leito: 'TOTAL', qtd: 248 }];
+    const regiaoData = [{ regiao: 'RIO DE JANEIRO', carteira: "67.494", qtd: 178, cti: 46, pacDia: "2,64", ctiPacDia: "0,68" }, { regiao: 'BAIXADA', carteira: "10.346", qtd: 32, cti: 4, pacDia: "3,09", ctiPacDia: "0,39" }, { regiao: 'LESTE', carteira: "11.752", qtd: 31, cti: 9, pacDia: "2,64", ctiPacDia: "0,77" }];
+    const produtoPremiumData = [{ carteira: '18.511', qtd: 64, cti: 15, pacDia: "3,46", ctiPacDia: "0,81" }, { carteira: 'REDE PREMIUM', qtd: 26, cti: 9, pacDia: '40,63%', ctiPacDia: '' }, { carteira: 'REDE BÁSICA', qtd: 38, cti: 8, pacDia: '59,38%', ctiPacDia: '' }];
+    const metaData = { meta: 2.35, metaCti: 0.80, pctMeta: 7.45, pctMetaCti: -19.82 };
+    const solicitacaoData = [
+        { data: '01/10/2025', qtd: 21, liberada: 21, negada: 0, eletivo: 21, evitada: 0, entrada: 42, saida: 45 },
+        { data: '02/10/2025', qtd: 34, liberada: 29, negada: 3, eletivo: 18, evitada: 2, entrada: 47, saida: 41 },
+        { data: '03/10/2025', qtd: 38, liberada: 35, negada: 1, eletivo: 15, evitada: 2, entrada: 50, saida: 45 },
+        { data: '04/10/2025', qtd: 29, liberada: 25, negada: 2, eletivo: 10, evitada: 2, entrada: 35, saida: 39 },
+        { data: '05/10/2025', qtd: 26, liberada: 22, negada: 2, eletivo: 10, evitada: 2, entrada: 32, saida: 31 },
+        { data: '06/10/2025', qtd: 24, liberada: 23, negada: 1, eletivo: 28, evitada: 0, entrada: 51, saida: 44 },
+        { data: '07/11/2025', qtd: 25, liberada: 24, negada: 0, eletivo: 20, evitada: 1, entrada: 44, saida: 45 },
+        { data: '08/10/2025', qtd: 36, liberada: 34, negada: 2, eletivo: 27, evitada: 0, entrada: 61, saida: 53 },
+        { data: '09/10/2025', qtd: 25, liberada: 23, negada: 2, eletivo: 15, evitada: 2, entrada: 36, saida: 38 },
+        { data: '10/10/2025', qtd: 26, liberada: 24, negada: 2, eletivo: 14, evitada: 0, entrada: 38, saida: 46 },
+        { data: '11/10/2025', qtd: 17, liberada: 15, negada: 2, eletivo: 13, evitada: 0, entrada: 28, saida: 40 },
+        { data: '12/10/2025', qtd: 13, liberada: 12, negada: 1, eletivo: 1, evitada: 0, entrada: 13, saida: 27 },
+        { data: '13/10/2025', qtd: 28, liberada: 26, negada: 0, eletivo: 24, evitada: 2, entrada: 50, saida: 24 },
+        { data: '14/10/2025', qtd: 20, liberada: 20, negada: 0, eletivo: 19, evitada: 0, entrada: 39, saida: 36 },
+        { data: '15/10/2025', qtd: 4, liberada: 4, negada: 0, eletivo: 17, evitada: 0, entrada: 21, saida: 4 },
+    ];
+    const hospitalData = [
+        { hospital: 'PRONTONIL', ui: 4, el: 0, usi: 0, cti: 1, elCti: 0, total: 5, pct: '2,02%' },
+        { hospital: 'JORGE JABER', ui: 0, el: 0, usi: 0, cti: 0, elCti: 0, total: 0, pct: '0,00%' },
+        { hospital: 'HSF', ui: 9, el: 0, usi: 0, cti: 2, elCti: 0, total: 11, pct: '4,44%' },
+        { hospital: 'SANTA LUCIA', ui: 0, el: 0, usi: 0, cti: 0, elCti: 0, total: 0, pct: '0,00%' },
+        { hospital: 'ENIO SERRA', ui: 0, el: 2, usi: 0, cti: 0, elCti: 0, total: 2, pct: '0,81%' },
+        { hospital: 'ISRAELITA', ui: 33, el: 23, usi: 0, cti: 16, elCti: 0, total: 72, pct: '29,03%' },
+        { hospital: 'EMCOR', ui: 1, el: 0, usi: 0, cti: 0, elCti: 0, total: 1, pct: '0,40%' },
+        { hospital: 'VITORIA', ui: 11, el: 0, usi: 0, cti: 5, elCti: 1, total: 17, pct: '6,85%' },
+        { hospital: 'VISTA ALEGRE', ui: 2, el: 0, usi: 0, cti: 0, elCti: 0, total: 2, pct: '0,81%' },
+        { hospital: 'CHN', ui: 0, el: 0, usi: 0, cti: 1, elCti: 0, total: 1, pct: '0,40%' },
+        { hospital: 'PROCOR', ui: 20, el: 5, usi: 0, cti: 15, elCti: 0, total: 40, pct: '16,13%' },
+        { hospital: 'PRO CARDIACO', ui: 3, el: 0, usi: 0, cti: 1, elCti: 0, total: 4, pct: '1,61%' },
+        { hospital: 'SMH', ui: 0, el: 0, usi: 0, cti: 0, elCti: 0, total: 0, pct: '0,00%' },
+        { hospital: 'SÃO MATHEUS', ui: 0, el: 0, usi: 0, cti: 1, elCti: 0, total: 1, pct: '0,40%' },
+        { hospital: 'SANTA BARBARA', ui: 1, el: 0, usi: 0, cti: 0, elCti: 0, total: 1, pct: '0,40%' },
+        { hospital: 'SAO LUCAS COPACABANA', ui: 0, el: 0, usi: 0, cti: 0, elCti: 0, total: 0, pct: '0,00%' },
+        { hospital: 'PRONTOBABY', ui: 3, el: 0, usi: 0, cti: 1, elCti: 0, total: 4, pct: '1,61%' },
+        { hospital: 'CLIN GAVEA', ui: 32, el: 0, usi: 0, cti: 0, elCti: 0, total: 32, pct: '12,90%' },
+        { hospital: 'NOSSA SENHORA DO CARMO', ui: 1, el: 0, usi: 0, cti: 0, elCti: 0, total: 1, pct: '0,40%' },
+        { hospital: 'TEREZINHA DE JESUS', ui: 0, el: 0, usi: 0, cti: 0, elCti: 0, total: 0, pct: '0,00%' },
+        { hospital: 'ALAMEDA', ui: 9, el: 0, usi: 0, cti: 1, elCti: 0, total: 10, pct: '4,03%' },
+        { hospital: 'SÃO LUCAS ICARAI', ui: 1, el: 0, usi: 0, cti: 0, elCti: 0, total: 1, pct: '0,40%' },
+        { hospital: 'DANIEL LIPP', ui: 3, el: 0, usi: 0, cti: 0, elCti: 0, total: 3, pct: '1,21%' },
+        { hospital: 'CENTRO PED LAGOA', ui: 3, el: 0, usi: 0, cti: 3, elCti: 0, total: 6, pct: '2,42%' },
+        { hospital: 'DI CAMP', ui: 7, el: 0, usi: 0, cti: 3, elCti: 0, total: 10, pct: '4,03%' },
+        { hospital: 'SEMIU', ui: 0, el: 0, usi: 0, cti: 0, elCti: 0, total: 0, pct: '0,00%' },
+        { hospital: 'SAMCORDIS', ui: 5, el: 0, usi: 0, cti: 8, elCti: 0, total: 13, pct: '5,24%' },
+        { hospital: 'PROCEM', ui: 0, el: 0, usi: 0, cti: 0, elCti: 0, total: 0, pct: '0,00%' },
+        { hospital: 'QUALITY CARE', ui: 3, el: 0, usi: 0, cti: 0, elCti: 0, total: 3, pct: '1,21%' },
+        { hospital: 'CASA DE SAUDE GRAJAU', ui: 0, el: 0, usi: 0, cti: 0, elCti: 0, total: 0, pct: '0,00%' },
+        { hospital: 'CLINICA PED BARRA', ui: 1, el: 0, usi: 0, cti: 0, elCti: 0, total: 1, pct: '0,40%' },
+        { hospital: 'SANTA TERESA', ui: 1, el: 0, usi: 0, cti: 0, elCti: 0, total: 1, pct: '0,40%' },
+        { hospital: 'CASA DE SAUDE SAO JOSE', ui: 1, el: 0, usi: 0, cti: 0, elCti: 0, total: 1, pct: '0,40%' },
+        { hospital: 'BADIM', ui: 1, el: 0, usi: 0, cti: 1, elCti: 1, total: 3, pct: '1,21%' },
+        { hospital: 'PASTEUR', ui: 0, el: 0, usi: 0, cti: 0, elCti: 0, total: 0, pct: '0,00%' },
+        { hospital: 'RIO BARRA', ui: 0, el: 0, usi: 0, cti: 0, elCti: 0, total: 0, pct: '0,00%' },
+        { hospital: 'MARIO LIONI', ui: 0, el: 0, usi: 0, cti: 0, elCti: 0, total: 0, pct: '0,00%' },
+        { hospital: 'HCJ', ui: 0, el: 0, usi: 0, cti: 0, elCti: 0, total: 0, pct: '0,00%' },
+    ];
+    
+    const parseDdMmYyyyToDate = (dateStr: string): Date | null => {
+        if (!dateStr || !/^\d{2}\/\d{2}\/\d{4}$/.test(dateStr)) return null;
+        const [day, month, year] = dateStr.split('/').map(Number);
+        return new Date(year, month - 1, day);
+    };
+
+    const filteredSolicitacaoData = useMemo(() => {
+        if (!startDate && !endDate) {
+            return solicitacaoData;
+        }
+        
+        const start = startDate ? new Date(startDate) : null;
+        const end = endDate ? new Date(endDate) : null;
+
+        if (start) start.setUTCHours(0, 0, 0, 0);
+        if (end) end.setUTCHours(0, 0, 0, 0);
+
+        return solicitacaoData.filter(item => {
+            const itemDate = parseDdMmYyyyToDate(item.data);
+            if (!itemDate) return false;
+            itemDate.setUTCHours(0, 0, 0, 0);
+
+            const afterStart = start ? itemDate >= start : true;
+            const beforeEnd = end ? itemDate <= end : true;
+            
+            return afterStart && beforeEnd;
+        });
+    }, [solicitacaoData, startDate, endDate]);
+
+    return (
+        <div style={{ marginTop: '24px' }}>
+            <div className="filter-bar">
+                <div className="filter-controls">
+                     <div className="form-group">
+                        <label>Inicial:</label>
+                        <input
+                            type="date"
+                            value={tempStartDate}
+                            onChange={(e) => setTempStartDate(e.target.value)}
+                        />
+                    </div>
+                    <div className="form-group">
+                        <label>Final:</label>
+                        <input
+                            type="date"
+                            value={tempEndDate}
+                            onChange={(e) => setTempEndDate(e.target.value)}
+                        />
+                    </div>
+                </div>
+                <div className="filter-actions">
+                    <button onClick={handleClearFilters} className="secondary-action-button">Limpar</button>
+                    <button onClick={handleApplyFilters} className="save-button">Aplicar</button>
+                </div>
+            </div>
+            
+            <div className="dados-hospitalizacao-grid" style={{marginTop: '24px'}}>
+                 <div className="dh-left-widgets">
+                     <Widget title="Carteira" className="span-2">
+                        <table className="dh-table">
+                            <thead><tr><th>CARTEIRA</th><th>TOTAL INTERNADO</th><th>RESULTADO</th><th>CTI</th><th>Média Mês</th><th>Média Mês CTI</th></tr></thead>
+                            <tbody><tr><td>{carteiraData.carteira}</td><td>{carteiraData.totalInternado}</td><td>{carteiraData.resultado}</td><td>{carteiraData.cti}</td><td>{carteiraData.mediaMes}</td><td>{carteiraData.mediaMesCti}</td></tr></tbody>
+                        </table>
+                    </Widget>
+                    <Widget title="Internação por Rede" className="span-2">
+                        <table className="dh-table">
+                            <thead><tr><th>INTERNAÇÃO POR REDE</th><th>QTD. INTERNADO</th><th>%OCUPAÇÃO</th></tr></thead>
+                            <tbody>{internacaoRedeData.map(d => <tr key={d.rede}><td>{d.rede}</td><td>{d.qtd}</td><td>{d.ocupacao}</td></tr>)}</tbody>
+                        </table>
+                    </Widget>
+                    <Widget title="Natureza da Guia" className="span-2">
+                        <table className="dh-table">
+                            <thead><tr><th>NATUREZA DA GUIA</th><th>TOTAL</th><th>PAC DIA</th></tr></thead>
+                            <tbody>
+                                {naturezaGuiaData.map((d, i) => <tr key={d.natureza}><td>{d.natureza}</td><td>{d.total}</td><td>{d.pacDia}</td></tr>)}
+                                <tr style={{fontWeight: 'bold', backgroundColor: '#f9fafb'}}><td >SOMA PAC DIA</td><td colSpan={2}>2,52</td></tr>
+                            </tbody>
+                        </table>
+                    </Widget>
+                    <Widget title="Regime">
+                        <table className="dh-table">
+                            <thead><tr><th>REGIME</th><th>QTD. INTERNADO</th></tr></thead>
+                            <tbody>{regimeData.map(d => <tr key={d.regime}><td>{d.regime}</td><td>{d.qtd}</td></tr>)}</tbody>
+                        </table>
+                    </Widget>
+                     <Widget title="Leito">
+                        <table className="dh-table">
+                            <thead><tr><th>LEITO</th><th>QTD. INTERNADO</th></tr></thead>
+                            <tbody>{leitoData.map(d => <tr key={d.leito}><td>{d.leito}</td><td>{d.qtd}</td></tr>)}</tbody>
+                        </table>
+                    </Widget>
+                    <Widget title="Meta x Resultado" className="span-2">
+                        <table className="dh-table" style={{ background: 'var(--white-color)' }}>
+                            <thead>
+                                <tr style={{ backgroundColor: '#582c83', color: 'white' }}>
+                                    <th style={{ border: '1px solid #582c83' }}>% Meta</th>
+                                    <th style={{ border: '1px solid #582c83' }}>Meta</th>
+                                    <th style={{ border: '1px solid #582c83' }}>Meta CTI</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                <tr>
+                                    <td style={{ backgroundColor: '#582c83', color: 'white', fontWeight: 'bold' }}>% Meta</td>
+                                    <td className="pct-meta-pos-bg">{metaData.pctMeta.toFixed(2)}%</td>
+                                    <td className="pct-meta-neg-bg">{metaData.pctMetaCti.toFixed(2)}%</td>
+                                </tr>
+                                <tr>
+                                    <td style={{ backgroundColor: '#582c83', color: 'white', fontWeight: 'bold' }}></td>
+                                    <td>{metaData.meta.toFixed(2)}</td>
+                                    <td>{metaData.metaCti.toFixed(2)}</td>
+                                </tr>
+                            </tbody>
+                        </table>
+                    </Widget>
+                    <Widget title="Região" className="span-2">
+                        <table className="dh-table">
+                            <thead><tr><th>REGIÃO</th><th>CARTEIRA</th><th>QTD. INTERNADO</th><th>CTI</th><th>PAC DIA</th><th>CTI</th></tr></thead>
+                            <tbody>{regiaoData.map(d => <tr key={d.regiao}><td>{d.regiao}</td><td>{d.carteira}</td><td>{d.qtd}</td><td>{d.cti}</td><td>{d.pacDia}</td><td>{d.ctiPacDia}</td></tr>)}</tbody>
+                        </table>
+                    </Widget>
+                    <Widget title="Produto Premium" className="span-2">
+                        <table className="dh-table">
+                            <thead><tr><th>CARTEIRA</th><th>QTD. INTERNADO</th><th>CTI</th><th>PAC DIA</th><th>CTI</th></tr></thead>
+                            <tbody>
+                                {produtoPremiumData.map(d => <tr key={d.carteira}><td>{d.carteira}</td><td>{d.qtd}</td><td>{d.cti}</td><td>{d.pacDia}</td><td>{d.ctiPacDia}</td></tr>)}
+                            </tbody>
+                        </table>
+                    </Widget>
+                </div>
+                <div className="dh-right-widgets">
+                    <Widget title="Acompanhamento Diário de Solicitação">
+                        <table className="dh-table">
+                            <thead><tr><th>DATA</th><th>QTD. SOLICITAÇÃO</th><th>LIBERADA</th><th>NEGADA</th><th>ELETIVO</th><th>EVITADA</th><th>ENTRADA</th><th>SAIDA</th></tr></thead>
+                            <tbody>{filteredSolicitacaoData.map(d => <tr key={d.data}><td>{d.data}</td><td>{d.qtd}</td><td>{d.liberada}</td><td>{d.negada}</td><td>{d.eletivo}</td><td>{d.evitada}</td><td>{d.entrada}</td><td>{d.saida}</td></tr>)}</tbody>
+                        </table>
+                    </Widget>
+                    <Widget title="Ocupação por Hospital">
+                        <table className="dh-table">
+                           <thead><tr><th>HOSPITAL</th><th>UI</th><th>EL. UI</th><th>USI</th><th>CTI</th><th>EL. CTI</th><th>Total</th><th>%</th></tr></thead>
+                           <tbody>{hospitalData.map(d => <tr key={d.hospital}><td>{d.hospital}</td><td>{d.ui}</td><td>{d.el}</td><td>{d.usi}</td><td>{d.cti}</td><td>{d.elCti}</td><td>{d.total}</td><td>{d.pct}</td></tr>)}</tbody>
+                       </table>
+                    </Widget>
+                </div>
+            </div>
+        </div>
+    );
+};
+
+
+const PainelIndicadoresInternacao = ({ onBack }: { onBack: () => void }) => {
+    const [activeTab, setActiveTab] = useState('indicadores'); // 'indicadores', 'diaadia', 'porHospital', 'dadosHospitalizacao'
+    const [timeFilter, setTimeFilter] = useState('Ontem');
+    const [dropdownFilter, setDropdownFilter] = useState('Todos');
+
+    const indicatorData = [
+        { title: 'Consultas de Urgência', value: '823', color: 'blue' },
+        { title: 'Internações', value: '226' },
+        { title: 'TX de Conversão (%)', value: '27.46%', color: 'blue' },
+        { title: 'PACdia/1000', value: '2.51' },
+        { title: 'Internações CTI', value: '80', color: 'blue' },
+        { title: 'CTIdia/1000', value: '0.89' },
+        { title: 'Tendência (QTD de Internados)', value: '↓', type: 'trend' },
+        { title: 'Tempo médio Internação (Diárias)', value: '8', color: 'blue' },
+        { title: 'Internações HIAS', value: '113', color: 'blue' },
+        { title: 'TX HIAS Real (%)', value: '27.81%', color: 'blue' },
+        { title: 'TX HIAS Plan (%)', value: '28.81%' },
+        { title: 'Diferença (RxP)', value: '1.00', color: 'blue' },
+    ];
+
+    const tableData = [
+        { dia: '25.08', consultasUrgencia: 532, internacoes: 216, txConversao: '40.60%', pacdia1000: '2.40', internacoesCTI: 69, ctidia1000: '0.77', tendencia: 'none', tempoMedio: 10, internacoesHIAS: 94, txHiasReal: '23.92%', txHiasPlan: '28.92%', diferenca: '5.00' },
+        { dia: '24.08', consultasUrgencia: 836, internacoes: 278, txConversao: '33.25%', pacdia1000: '3.09', internacoesCTI: 100, ctidia1000: '1.11', tendencia: 'down', tempoMedio: 9, internacoesHIAS: 114, txHiasReal: '31.42%', txHiasPlan: '35.42%', diferenca: '4.00' },
+        { dia: '23.08', consultasUrgencia: 832, internacoes: 214, txConversao: '25.72%', pacdia1000: '2.38', internacoesCTI: 68, ctidia1000: '0.76', tendencia: 'down', tempoMedio: 11, internacoesHIAS: 177, txHiasReal: '22.94%', txHiasPlan: '26.94%', diferenca: '4.00' },
+        { dia: '22.08', consultasUrgencia: 698, internacoes: 290, txConversao: '41.55%', pacdia1000: '3.22', internacoesCTI: 90, ctidia1000: '1.00', tendencia: 'up', tempoMedio: 7, internacoesHIAS: 166, txHiasReal: '21.41%', txHiasPlan: '24.41%', diferenca: '3.00' },
+        { dia: '21.08', consultasUrgencia: 680, internacoes: 280, txConversao: '41.18%', pacdia1000: '3.11', internacoesCTI: 98, ctidia1000: '1.09', tendencia: 'down', tempoMedio: 12, internacoesHIAS: 154, txHiasReal: '24.76%', txHiasPlan: '29.76%', diferenca: '5.00' },
+    ];
+
+    const hospitalTableData = [
+        { hospital: 'Pro Cardiaco', consultasUrgencia: 784, internacoes: 326, txConversao: '41.58%', pacdia1000: '3.62', internacoesCTI: 109, ctidia1000: '1.21', tendencia: 'none', tempoMedio: 9 },
+        { hospital: 'HIAS', consultasUrgencia: 766, internacoes: 305, txConversao: '39.82%', pacdia1000: '3.39', internacoesCTI: 100, ctidia1000: '1.11', tendencia: 'none', tempoMedio: 8 },
+        { hospital: 'SEMIU', consultasUrgencia: 710, internacoes: 297, txConversao: '41.83%', pacdia1000: '3.30', internacoesCTI: 98, ctidia1000: '1.09', tendencia: 'none', tempoMedio: 9 },
+        { hospital: 'HSF', consultasUrgencia: 696, internacoes: 270, txConversao: '38.79%', pacdia1000: '3.00', internacoesCTI: 89, ctidia1000: '0.99', tendencia: 'none', tempoMedio: 7 },
+        { hospital: 'Vitória', consultasUrgencia: 697, internacoes: 267, txConversao: '38.31%', pacdia1000: '2.97', internacoesCTI: 91, ctidia1000: '1.01', tendencia: 'none', tempoMedio: 8 },
+        { hospital: 'Pronto Baby', consultasUrgencia: 666, internacoes: 264, txConversao: '39.64%', pacdia1000: '2.93', internacoesCTI: 84, ctidia1000: '0.93', tendencia: 'none', tempoMedio: 7 },
+    ];
+
+    const renderTendencia = (tendencia: 'up' | 'down' | 'none') => {
+        if (tendencia === 'up') return <span className="trend-up">↑</span>;
+        if (tendencia === 'down') return <span className="trend-down">↓</span>;
+        return <span>—</span>;
+    };
+
+    return (
+        <div className="page-container">
+            <AppHeader
+                title="Painel de Internação"
+                subtitle="Indicadores de performance e acompanhamento diário."
+                onBack={onBack}
+            />
+            {activeTab !== 'dadosHospitalizacao' && (
+                <div className="page-filters-bar">
+                    {(activeTab === 'diaadia' || activeTab === 'porHospital') && (
+                        <div className="internacoes-filter-dropdown">
+                            <select value={dropdownFilter} onChange={(e) => setDropdownFilter(e.target.value)}>
+                                <option value="Todos">Todos</option>
+                            </select>
+                        </div>
+                    )}
+                    <div className="time-filter-bar">
+                        <button className={`time-filter-button ${timeFilter === 'Ontem' ? 'active' : ''}`} onClick={() => setTimeFilter('Ontem')}>Ontem</button>
+                        <button className={`time-filter-button ${timeFilter === 'Semana Passada' ? 'active' : ''}`} onClick={() => setTimeFilter('Semana Passada')}>Semana Passada</button>
+                        <button className={`time-filter-button ${timeFilter === 'Últimos 30 Dias' ? 'active' : ''}`} onClick={() => setTimeFilter('Últimos 30 Dias')}>Últimos 30 dias</button>
+                    </div>
+                </div>
+            )}
+
+
+            <div className="tab-bar">
+                <button
+                    className={`tab-button ${activeTab === 'indicadores' ? 'active' : ''}`}
+                    onClick={() => setActiveTab('indicadores')}
+                >
+                    Indicadores de Internação
+                </button>
+                <button
+                    className={`tab-button ${activeTab === 'diaadia' ? 'active' : ''}`}
+                    onClick={() => setActiveTab('diaadia')}
+                >
+                    Internações dia a dia
+                </button>
+                <button
+                    className={`tab-button ${activeTab === 'porHospital' ? 'active' : ''}`}
+                    onClick={() => setActiveTab('porHospital')}
+                >
+                    Internações por Hospital
+                </button>
+                 <button
+                    className={`tab-button ${activeTab === 'dadosHospitalizacao' ? 'active' : ''}`}
+                    onClick={() => setActiveTab('dadosHospitalizacao')}
+                >
+                    Dados da Hospitalização
+                </button>
+            </div>
+
+            {activeTab === 'indicadores' && (
+                <div className="indicadores-grid-container">
+                    {indicatorData.map(item => (
+                        <div className="indicator-card" key={item.title}>
+                            <h3>{item.title}</h3>
+                            <div className={`value ${item.color === 'blue' ? 'text-blue' : ''} ${item.type === 'trend' ? 'trend-down' : ''}`}>
+                                {item.value}
+                            </div>
+                        </div>
+                    ))}
+                </div>
+            )}
+            
+            {activeTab === 'diaadia' && (
+                <div className="internacoes-table-container">
+                    <table className="internacoes-table">
+                        <thead>
+                            <tr>
+                                <th>DIA</th>
+                                <th>CONSULTAS DE URGÊNCIA</th>
+                                <th>INTERNAÇÕES</th>
+                                <th>TX DE CONVERSÃO (%)</th>
+                                <th>PACDIA/1000</th>
+                                <th>INTERNAÇÕES CTI</th>
+                                <th>CTIDIA/1000</th>
+                                <th>TENDÊNCIA (QTD DE INTERNADOS)</th>
+                                <th>TEMPO MÉDIO INTERNAÇÃO (DIÁRIAS)</th>
+                                <th>INTERNAÇÕES HIAS</th>
+                                <th>TX HIAS REAL</th>
+                                <th>TX HIAS PLAN</th>
+                                <th>DIFERENÇA (RXP)</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            {tableData.map((row, index) => (
+                                <tr key={index}>
+                                    <td>{row.dia}</td>
+                                    <td className="text-blue">{row.consultasUrgencia}</td>
+                                    <td>{row.internacoes}</td>
+                                    <td className="text-blue">{row.txConversao}</td>
+                                    <td>{row.pacdia1000}</td>
+                                    <td>{row.internacoesCTI}</td>
+                                    <td>{row.ctidia1000}</td>
+                                    <td>{renderTendencia(row.tendencia as any)}</td>
+                                    <td className="text-red">{row.tempoMedio}</td>
+                                    <td>{row.internacoesHIAS}</td>
+                                    <td className="text-blue">{row.txHiasReal}</td>
+                                    <td>{row.txHiasPlan}</td>
+                                    <td className="text-blue">{row.diferenca}</td>
+                                </tr>
+                            ))}
+                        </tbody>
+                    </table>
+                </div>
+            )}
+
+            {activeTab === 'porHospital' && (
+                 <div className="internacoes-table-container">
+                    <table className="internacoes-table">
+                        <thead>
+                            <tr>
+                                <th>HOSPITAL IH</th>
+                                <th>CONSULTAS DE URGÊNCIA</th>
+                                <th>INTERNAÇÕES</th>
+                                <th>TX DE CONVERSÃO (%)</th>
+                                <th>PACDIA/1000</th>
+                                <th>INTERNAÇÕES CTI</th>
+                                <th>CTIDIA/1000</th>
+                                <th>TENDÊNCIA (QTD DE INTERNADOS)</th>
+                                <th>TEMPO MÉDIO INTERNAÇÃO</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            {hospitalTableData.map((row, index) => (
+                                <tr key={index}>
+                                    <td>{row.hospital}</td>
+                                    <td className="text-blue">{row.consultasUrgencia}</td>
+                                    <td>{row.internacoes}</td>
+                                    <td className="text-blue">{row.txConversao}</td>
+                                    <td>{row.pacdia1000}</td>
+                                    <td>{row.internacoesCTI}</td>
+                                    <td>{row.ctidia1000}</td>
+                                    <td>{renderTendencia(row.tendencia as any)}</td>
+                                    <td className="text-red">{row.tempoMedio}</td>
+                                </tr>
+                            ))}
+                        </tbody>
+                    </table>
+                </div>
+            )}
+
+            {activeTab === 'dadosHospitalizacao' && <DadosHospitalizacaoDashboard />}
+        </div>
+    );
+};
+
+export default PainelIndicadoresInternacao;

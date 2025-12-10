@@ -174,3 +174,12 @@ export type SolusSyncData = {
   };
   conflitos: number;
 };
+
+export type ProgramaNCI = string;
+
+export type VinculoBeneficiarioPrograma = {
+  id: number;
+  cpf: string;
+  programas: string[]; // Array de programas
+  dataCadastro: string; // YYYY-MM-DD
+};

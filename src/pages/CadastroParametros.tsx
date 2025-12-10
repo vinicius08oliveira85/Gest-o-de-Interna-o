@@ -70,6 +70,8 @@ const CadastroParametros = ({ onBack, onSelectPage }: { onBack: () => void; onSe
             onSelectPage('Cadastro de População/Região');
         } else if (sectionId === 'sincronizacao-solus') {
             onSelectPage('Sincronização Solus');
+        } else if (sectionId === 'cadastro-programas-nci') {
+            onSelectPage('Cadastro de Programas NCI');
         } else {
             // Placeholder para outras seções
             console.log(`Seção clicada: ${sectionId}`);

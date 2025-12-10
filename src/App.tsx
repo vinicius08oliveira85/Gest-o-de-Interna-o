@@ -19,6 +19,7 @@ import PainelIndicadoresInternacao from './pages/PainelIndicadoresInternacao.tsx
 import PainelNCI from './pages/PainelNCI.tsx';
 import CadastroParametros from './pages/CadastroParametros.tsx';
 import CadastroPopulacaoRede from './pages/CadastroPopulacaoRede.tsx';
+import CadastroProgramasNCI from './pages/CadastroProgramasNCI.tsx';
 import SincronizacaoSolus from './pages/SincronizacaoSolus.tsx';
 import Toast from './components/Toast.tsx';
 
@@ -284,6 +285,8 @@ const App = () => {
                 return <CadastroPopulacaoRede onBack={() => handleSelectPage('Configurações/Cadastro')} />;
             case 'Sincronização Solus':
                 return <SincronizacaoSolus onBack={() => handleSelectPage('Configurações/Cadastro')} />;
+            case 'Cadastro de Programas NCI':
+                return <CadastroProgramasNCI onBack={() => handleSelectPage('Configurações/Cadastro')} />;
             default:
                 return <MainMenu onSelectPage={handleSelectPage} user={user} onLogout={handleLogout} menuItems={menuItems} />;
         }

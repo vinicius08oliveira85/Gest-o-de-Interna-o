@@ -278,12 +278,12 @@ const App = () => {
                             subtitle={pageInfo?.description ?? 'Performance de programas e lista de internados.'} 
                             onBack={handleBackToMenu} 
                         />;
-            case 'Cadastro de Parâmetros':
+            case 'Configurações/Cadastro':
                 return <CadastroParametros onBack={handleBackToMenu} onSelectPage={handleSelectPage} />;
             case 'Cadastro de População/Região':
-                return <CadastroPopulacaoRede onBack={() => handleSelectPage('Cadastro de Parâmetros')} />;
+                return <CadastroPopulacaoRede onBack={() => handleSelectPage('Configurações/Cadastro')} />;
             case 'Sincronização Solus':
-                return <SincronizacaoSolus onBack={() => handleSelectPage('Cadastro de Parâmetros')} />;
+                return <SincronizacaoSolus onBack={() => handleSelectPage('Configurações/Cadastro')} />;
             default:
                 return <MainMenu onSelectPage={handleSelectPage} user={user} onLogout={handleLogout} menuItems={menuItems} />;
         }

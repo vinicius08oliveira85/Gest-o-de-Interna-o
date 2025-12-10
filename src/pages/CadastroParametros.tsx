@@ -79,7 +79,7 @@ const CadastroParametros = ({ onBack, onSelectPage }: { onBack: () => void; onSe
     return (
         <div className="page-container">
             <AppHeader 
-                title="Cadastro de Parâmetros"
+                title="Configurações/Cadastro"
                 subtitle="Gerencie as configurações e parâmetros do sistema"
                 onBack={onBack}
             />

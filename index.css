@@ -317,7 +317,7 @@ body {
     border-radius: 12px;
 }
 
-/* --- Cadastro de Parâmetros --- */
+/* --- Configurações/Cadastro --- */
 .parametros-sections {
     display: flex;
     flex-direction: column;

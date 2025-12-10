@@ -530,6 +530,14 @@ body {
     background-color: rgba(220, 53, 69, 0.1);
 }
 
+.view-button {
+    color: #17a2b8;
+}
+
+.view-button:hover {
+    background-color: rgba(23, 162, 184, 0.1);
+}
+
 .populacao-modal-content {
     background: var(--white-color);
     padding: 0;
@@ -643,6 +651,129 @@ body {
     color: var(--error-color);
     font-size: 12px;
     margin-top: 4px;
+}
+
+.populacao-regioes-group {
+    margin-bottom: 20px;
+}
+
+.populacao-regioes-group > label {
+    display: block;
+    font-weight: 500;
+    margin-bottom: 12px;
+    color: #343a40;
+    font-size: 14px;
+}
+
+.populacao-regiao-input {
+    margin-bottom: 12px;
+    display: flex;
+    align-items: center;
+    gap: 12px;
+}
+
+.populacao-regiao-label {
+    font-weight: 500;
+    color: #343a40;
+    font-size: 14px;
+    min-width: 150px;
+    flex-shrink: 0;
+}
+
+.populacao-regiao-input input {
+    flex: 1;
+    padding: 12px;
+    border: 1px solid var(--border-color);
+    border-radius: 8px;
+    font-size: 16px;
+    font-family: 'Poppins', sans-serif;
+    outline: none;
+}
+
+.populacao-regiao-input input:focus {
+    border-color: var(--primary-color);
+    box-shadow: 0 0 0 3px rgba(0, 75, 136, 0.2);
+}
+
+.populacao-total-group {
+    margin-top: 24px;
+    padding-top: 20px;
+    border-top: 2px solid var(--border-color);
+}
+
+.populacao-total-group label {
+    display: block;
+    font-weight: 600;
+    margin-bottom: 8px;
+    color: #343a40;
+    font-size: 16px;
+}
+
+.populacao-total-display {
+    font-size: 24px;
+    font-weight: 700;
+    color: var(--primary-color);
+    padding: 12px;
+    background-color: rgba(0, 75, 136, 0.05);
+    border-radius: 8px;
+    text-align: center;
+}
+
+.populacao-view-modal {
+    max-width: 600px;
+}
+
+.populacao-view-group {
+    margin-bottom: 20px;
+}
+
+.populacao-view-group label {
+    display: block;
+    font-weight: 600;
+    margin-bottom: 8px;
+    color: #343a40;
+    font-size: 14px;
+}
+
+.populacao-view-value {
+    font-size: 16px;
+    color: var(--text-color);
+    padding: 12px;
+    background-color: #f8f9fa;
+    border-radius: 8px;
+}
+
+.populacao-view-total {
+    font-size: 24px;
+    font-weight: 700;
+    color: var(--primary-color);
+    text-align: center;
+}
+
+.populacao-view-regioes {
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+}
+
+.populacao-view-regiao-item {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 12px;
+    background-color: #f8f9fa;
+    border-radius: 8px;
+}
+
+.populacao-view-regiao-name {
+    font-weight: 500;
+    color: #343a40;
+}
+
+.populacao-view-regiao-value {
+    font-weight: 600;
+    color: var(--primary-color);
+    font-size: 18px;
 }
 
 .populacao-modal-actions {

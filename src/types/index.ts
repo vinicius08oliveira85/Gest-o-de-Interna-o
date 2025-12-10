@@ -153,6 +153,10 @@ export type Patient = {
 export type PopulacaoRegistro = {
   id: number;
   data: string; // YYYY-MM-DD
-  beneficiariosAtivos: number;
+  regioes: {
+    regiao: string; // Regiao type
+    beneficiariosAtivos: number;
+  }[];
+  totalBeneficiariosAtivos: number; // Calculado automaticamente
   atualizadoEm: string; // YYYY-MM-DD
 };

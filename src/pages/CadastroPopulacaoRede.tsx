@@ -1,19 +1,41 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useMemo } from 'react';
 import { PopulacaoRegistro } from '../types/index.ts';
+import { REGIOES } from '../data/regioes.ts';
 
 const CadastroPopulacaoRede = ({ onBack }: { onBack: () => void }) => {
     const [registros, setRegistros] = useState<PopulacaoRegistro[]>([]);
     const [isModalOpen, setIsModalOpen] = useState(false);
+    const [isViewModalOpen, setIsViewModalOpen] = useState(false);
     const [editingRegistro, setEditingRegistro] = useState<PopulacaoRegistro | null>(null);
-    const [formData, setFormData] = useState({ data: '', beneficiariosAtivos: '' });
-    const [errors, setErrors] = useState({ data: '', beneficiariosAtivos: '' });
+    const [viewingRegistro, setViewingRegistro] = useState<PopulacaoRegistro | null>(null);
+    const [formData, setFormData] = useState({ 
+        data: '', 
+        regioes: REGIOES.map(regiao => ({ regiao, beneficiariosAtivos: '' }))
+    });
+    const [errors, setErrors] = useState({ data: '', regioes: '' });
 
     // Carregar dados do localStorage ao montar
     useEffect(() => {
         const saved = localStorage.getItem('populacaoRegistros');
         if (saved) {
             try {
-                setRegistros(JSON.parse(saved));
+                const parsed = JSON.parse(saved);
+                // Migrar dados antigos se necessário
+                const migrated = parsed.map((r: any) => {
+                    if (r.beneficiariosAtivos !== undefined && !r.regioes) {
+                        // Formato antigo - converter para novo
+                        return {
+                            ...r,
+                            regioes: REGIOES.map(regiao => ({
+                                regiao,
+                                beneficiariosAtivos: regiao === 'RIO DE JANEIRO' ? r.beneficiariosAtivos : 0
+                            })),
+                            totalBeneficiariosAtivos: r.beneficiariosAtivos
+                        };
+                    }
+                    return r;
+                });
+                setRegistros(migrated);
             } catch (e) {
                 console.error('Erro ao carregar registros:', e);
             }
@@ -26,6 +48,14 @@ const CadastroPopulacaoRede = ({ onBack }: { onBack: () => void }) => {
             localStorage.setItem('populacaoRegistros', JSON.stringify(registros));
         }
     }, [registros]);
+
+    // Calcular total automaticamente
+    const totalCalculado = useMemo(() => {
+        return formData.regioes.reduce((sum, reg) => {
+            const valor = Number(reg.beneficiariosAtivos) || 0;
+            return sum + valor;
+        }, 0);
+    }, [formData.regioes]);
 
     const formatDate = (dateString: string): string => {
         if (!dateString) return '';
@@ -40,8 +70,15 @@ const CadastroPopulacaoRede = ({ onBack }: { onBack: () => void }) => {
         return num.toLocaleString('pt-BR');
     };
 
+    const formatRegioes = (regioes: { regiao: string; beneficiariosAtivos: number }[]): string => {
+        return regioes
+            .filter(r => r.beneficiariosAtivos > 0)
+            .map(r => `${r.regiao}: ${formatNumber(r.beneficiariosAtivos)}`)
+            .join(', ') || 'Nenhuma região cadastrada';
+    };
+
     const validateForm = (): boolean => {
-        const newErrors = { data: '', beneficiariosAtivos: '' };
+        const newErrors = { data: '', regioes: '' };
         let isValid = true;
 
         if (!formData.data) {
@@ -49,14 +86,22 @@ const CadastroPopulacaoRede = ({ onBack }: { onBack: () => void }) => {
             isValid = false;
         }
 
-        if (!formData.beneficiariosAtivos) {
-            newErrors.beneficiariosAtivos = 'Quantidade é obrigatória';
+        const hasAtLeastOneRegiao = formData.regioes.some(r => {
+            const valor = Number(r.beneficiariosAtivos);
+            return !isNaN(valor) && valor > 0;
+        });
+
+        if (!hasAtLeastOneRegiao) {
+            newErrors.regioes = 'Pelo menos uma região deve ter quantidade maior que zero';
             isValid = false;
-        } else {
-            const quantidade = Number(formData.beneficiariosAtivos);
-            if (isNaN(quantidade) || quantidade <= 0) {
-                newErrors.beneficiariosAtivos = 'Quantidade deve ser um número positivo';
+        }
+
+        // Validar cada região
+        for (const reg of formData.regioes) {
+            if (reg.beneficiariosAtivos && (isNaN(Number(reg.beneficiariosAtivos)) || Number(reg.beneficiariosAtivos) < 0)) {
+                newErrors.regioes = 'Quantidades devem ser números positivos';
                 isValid = false;
+                break;
             }
         }
 
@@ -66,8 +111,11 @@ const CadastroPopulacaoRede = ({ onBack }: { onBack: () => void }) => {
 
     const handleOpenNewModal = () => {
         setEditingRegistro(null);
-        setFormData({ data: '', beneficiariosAtivos: '' });
-        setErrors({ data: '', beneficiariosAtivos: '' });
+        setFormData({ 
+            data: '', 
+            regioes: REGIOES.map(regiao => ({ regiao, beneficiariosAtivos: '' }))
+        });
+        setErrors({ data: '', regioes: '' });
         setIsModalOpen(true);
     };
 
@@ -75,30 +123,67 @@ const CadastroPopulacaoRede = ({ onBack }: { onBack: () => void }) => {
         setEditingRegistro(registro);
         setFormData({
             data: registro.data,
-            beneficiariosAtivos: registro.beneficiariosAtivos.toString()
+            regioes: REGIOES.map(regiao => {
+                const reg = registro.regioes.find(r => r.regiao === regiao);
+                return { regiao, beneficiariosAtivos: reg ? reg.beneficiariosAtivos.toString() : '' };
+            })
         });
-        setErrors({ data: '', beneficiariosAtivos: '' });
+        setErrors({ data: '', regioes: '' });
         setIsModalOpen(true);
+    };
+
+    const handleOpenViewModal = (registro: PopulacaoRegistro) => {
+        setViewingRegistro(registro);
+        setIsViewModalOpen(true);
     };
 
     const handleCloseModal = () => {
         setIsModalOpen(false);
         setEditingRegistro(null);
-        setFormData({ data: '', beneficiariosAtivos: '' });
-        setErrors({ data: '', beneficiariosAtivos: '' });
+        setFormData({ 
+            data: '', 
+            regioes: REGIOES.map(regiao => ({ regiao, beneficiariosAtivos: '' }))
+        });
+        setErrors({ data: '', regioes: '' });
+    };
+
+    const handleCloseViewModal = () => {
+        setIsViewModalOpen(false);
+        setViewingRegistro(null);
+    };
+
+    const handleRegiaoChange = (regiao: string, value: string) => {
+        setFormData({
+            ...formData,
+            regioes: formData.regioes.map(r =>
+                r.regiao === regiao ? { ...r, beneficiariosAtivos: value } : r
+            )
+        });
+        if (errors.regioes) {
+            setErrors({ ...errors, regioes: '' });
+        }
     };
 
     const handleSave = () => {
         if (!validateForm()) return;
 
-        const quantidade = Number(formData.beneficiariosAtivos);
         const hoje = new Date().toISOString().split('T')[0];
+        const regioesComValores = formData.regioes.map(r => ({
+            regiao: r.regiao,
+            beneficiariosAtivos: Number(r.beneficiariosAtivos) || 0
+        }));
 
         if (editingRegistro) {
             // Editar registro existente
             setRegistros(prev => prev.map(r =>
                 r.id === editingRegistro.id
-                    ? { ...r, data: formData.data, beneficiariosAtivos: quantidade, atualizadoEm: hoje }
+                    ? { 
+                        ...r, 
+                        data: formData.data, 
+                        regioes: regioesComValores,
+                        totalBeneficiariosAtivos: totalCalculado,
+                        atualizadoEm: hoje 
+                    }
                     : r
             ));
         } else {
@@ -106,7 +191,8 @@ const CadastroPopulacaoRede = ({ onBack }: { onBack: () => void }) => {
             const novoRegistro: PopulacaoRegistro = {
                 id: Date.now(),
                 data: formData.data,
-                beneficiariosAtivos: quantidade,
+                regioes: regioesComValores,
+                totalBeneficiariosAtivos: totalCalculado,
                 atualizadoEm: hoje
             };
             setRegistros(prev => [novoRegistro, ...prev]);
@@ -137,9 +223,9 @@ const CadastroPopulacaoRede = ({ onBack }: { onBack: () => void }) => {
                             <path d="M23 21v-2a4 4 0 0 0-3-3.87"></path>
                             <path d="M16 3.13a4 4 0 0 1 0 7.75"></path>
                         </svg>
-                        <h1>Cadastro de População</h1>
+                        <h1>Cadastro de População/Região</h1>
                     </div>
-                    <p className="populacao-subtitle">registre a quantidade de beneficiários ativos por data</p>
+                    <p className="populacao-subtitle">registre a quantidade de beneficiários ativos por data e região</p>
                 </div>
                 <div className="populacao-header-right">
                     <button onClick={onBack} className="back-button">← Voltar</button>
@@ -165,7 +251,8 @@ const CadastroPopulacaoRede = ({ onBack }: { onBack: () => void }) => {
                     <thead>
                         <tr>
                             <th>Data</th>
-                            <th>Beneficiários Ativos</th>
+                            <th>Total de Beneficiários Ativos</th>
+                            <th>Região</th>
                             <th>Atualizado em</th>
                             <th>Ações</th>
                         </tr>
@@ -173,7 +260,7 @@ const CadastroPopulacaoRede = ({ onBack }: { onBack: () => void }) => {
                     <tbody>
                         {registrosOrdenados.length === 0 ? (
                             <tr>
-                                <td colSpan={4} style={{ textAlign: 'center', padding: '40px', color: 'var(--light-text-color)' }}>
+                                <td colSpan={5} style={{ textAlign: 'center', padding: '40px', color: 'var(--light-text-color)' }}>
                                     Nenhum registro cadastrado. Clique em "+ Novo Registro" para começar.
                                 </td>
                             </tr>
@@ -181,10 +268,21 @@ const CadastroPopulacaoRede = ({ onBack }: { onBack: () => void }) => {
                             registrosOrdenados.map(registro => (
                                 <tr key={registro.id}>
                                     <td>{formatDate(registro.data)}</td>
-                                    <td>{formatNumber(registro.beneficiariosAtivos)}</td>
+                                    <td>{formatNumber(registro.totalBeneficiariosAtivos)}</td>
+                                    <td>{formatRegioes(registro.regioes)}</td>
                                     <td>{formatDate(registro.atualizadoEm)}</td>
                                     <td>
                                         <div className="populacao-actions">
+                                            <button
+                                                onClick={() => handleOpenViewModal(registro)}
+                                                className="action-button view-button"
+                                                title="Visualizar"
+                                            >
+                                                <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                                                    <path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"></path>
+                                                    <circle cx="12" cy="12" r="3"></circle>
+                                                </svg>
+                                            </button>
                                             <button
                                                 onClick={() => handleOpenEditModal(registro)}
                                                 className="action-button edit-button"
@@ -249,20 +347,27 @@ const CadastroPopulacaoRede = ({ onBack }: { onBack: () => void }) => {
                                 </div>
                                 {errors.data && <span className="error-message">{errors.data}</span>}
                             </div>
-                            <div className="populacao-form-group">
-                                <label>Quantidade de Beneficiários Ativos</label>
-                                <input
-                                    type="number"
-                                    value={formData.beneficiariosAtivos}
-                                    onChange={(e) => {
-                                        setFormData({ ...formData, beneficiariosAtivos: e.target.value });
-                                        setErrors({ ...errors, beneficiariosAtivos: '' });
-                                    }}
-                                    placeholder="Ex: 90000"
-                                    className={errors.beneficiariosAtivos ? 'error' : ''}
-                                    min="1"
-                                />
-                                {errors.beneficiariosAtivos && <span className="error-message">{errors.beneficiariosAtivos}</span>}
+                            <div className="populacao-regioes-group">
+                                <label>Quantidade de Beneficiários Ativos por Região</label>
+                                {REGIOES.map(regiao => (
+                                    <div key={regiao} className="populacao-regiao-input">
+                                        <label className="populacao-regiao-label">{regiao}</label>
+                                        <input
+                                            type="number"
+                                            value={formData.regioes.find(r => r.regiao === regiao)?.beneficiariosAtivos || ''}
+                                            onChange={(e) => handleRegiaoChange(regiao, e.target.value)}
+                                            placeholder="Ex: 90000"
+                                            min="0"
+                                        />
+                                    </div>
+                                ))}
+                                {errors.regioes && <span className="error-message">{errors.regioes}</span>}
+                            </div>
+                            <div className="populacao-total-group">
+                                <label>Total de Beneficiários Ativos</label>
+                                <div className="populacao-total-display">
+                                    {formatNumber(totalCalculado)}
+                                </div>
                             </div>
                         </div>
                         <div className="populacao-modal-actions">
@@ -272,9 +377,52 @@ const CadastroPopulacaoRede = ({ onBack }: { onBack: () => void }) => {
                     </div>
                 </div>
             )}
+
+            {isViewModalOpen && viewingRegistro && (
+                <div className="modal-overlay" onClick={handleCloseViewModal}>
+                    <div className="populacao-modal-content populacao-view-modal" onClick={(e) => e.stopPropagation()}>
+                        <div className="populacao-modal-header">
+                            <h3>Visualizar Registro</h3>
+                            <button onClick={handleCloseViewModal} className="populacao-modal-close-btn">&times;</button>
+                        </div>
+                        <div className="populacao-modal-body">
+                            <div className="populacao-view-group">
+                                <label>Data</label>
+                                <div className="populacao-view-value">{formatDate(viewingRegistro.data)}</div>
+                            </div>
+                            <div className="populacao-view-group">
+                                <label>Regiões</label>
+                                <div className="populacao-view-regioes">
+                                    {viewingRegistro.regioes
+                                        .filter(r => r.beneficiariosAtivos > 0)
+                                        .map(r => (
+                                            <div key={r.regiao} className="populacao-view-regiao-item">
+                                                <span className="populacao-view-regiao-name">{r.regiao}:</span>
+                                                <span className="populacao-view-regiao-value">{formatNumber(r.beneficiariosAtivos)}</span>
+                                            </div>
+                                        ))}
+                                    {viewingRegistro.regioes.filter(r => r.beneficiariosAtivos > 0).length === 0 && (
+                                        <div className="populacao-view-value">Nenhuma região cadastrada</div>
+                                    )}
+                                </div>
+                            </div>
+                            <div className="populacao-view-group">
+                                <label>Total de Beneficiários Ativos</label>
+                                <div className="populacao-view-value populacao-view-total">{formatNumber(viewingRegistro.totalBeneficiariosAtivos)}</div>
+                            </div>
+                            <div className="populacao-view-group">
+                                <label>Atualizado em</label>
+                                <div className="populacao-view-value">{formatDate(viewingRegistro.atualizadoEm)}</div>
+                            </div>
+                        </div>
+                        <div className="populacao-modal-actions">
+                            <button onClick={handleCloseViewModal} className="modal-button confirm">Fechar</button>
+                        </div>
+                    </div>
+                </div>
+            )}
         </div>
     );
 };
 
 export default CadastroPopulacaoRede;
-

@@ -279,7 +279,7 @@ const App = () => {
                         />;
             case 'Cadastro de Parâmetros':
                 return <CadastroParametros onBack={handleBackToMenu} onSelectPage={handleSelectPage} />;
-            case 'Cadastro de População/Rede':
+            case 'Cadastro de População/Região':
                 return <CadastroPopulacaoRede onBack={() => handleSelectPage('Cadastro de Parâmetros')} />;
             default:
                 return <MainMenu onSelectPage={handleSelectPage} user={user} onLogout={handleLogout} menuItems={menuItems} />;

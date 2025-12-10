@@ -18,6 +18,7 @@ import DetalhesEsperaDesospitalizacao from './pages/DetalhesEsperaDesospitalizac
 import PainelIndicadoresInternacao from './pages/PainelIndicadoresInternacao.tsx';
 import PainelNCI from './pages/PainelNCI.tsx';
 import CadastroParametros from './pages/CadastroParametros.tsx';
+import CadastroPopulacaoRede from './pages/CadastroPopulacaoRede.tsx';
 import Toast from './components/Toast.tsx';
 
 const App = () => {
@@ -277,7 +278,9 @@ const App = () => {
                             onBack={handleBackToMenu} 
                         />;
             case 'Cadastro de Parâmetros':
-                return <CadastroParametros onBack={handleBackToMenu} />;
+                return <CadastroParametros onBack={handleBackToMenu} onSelectPage={handleSelectPage} />;
+            case 'Cadastro de População/Rede':
+                return <CadastroPopulacaoRede onBack={() => handleSelectPage('Cadastro de Parâmetros')} />;
             default:
                 return <MainMenu onSelectPage={handleSelectPage} user={user} onLogout={handleLogout} menuItems={menuItems} />;
         }

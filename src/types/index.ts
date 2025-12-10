@@ -149,3 +149,10 @@ export type Patient = {
   ultimaConsulta?: string;
   notasRegulacao?: string;
 };
+
+export type PopulacaoRegistro = {
+  id: number;
+  data: string; // YYYY-MM-DD
+  beneficiariosAtivos: number;
+  atualizadoEm: string; // YYYY-MM-DD
+};

@@ -385,6 +385,274 @@ body {
     color: var(--primary-color);
 }
 
+/* --- Cadastro de População/Rede --- */
+.populacao-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: flex-start;
+    margin-bottom: 24px;
+    gap: 20px;
+}
+
+.populacao-header-left {
+    flex: 1;
+}
+
+.populacao-title {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    margin-bottom: 8px;
+}
+
+.populacao-title svg {
+    color: var(--primary-color);
+}
+
+.populacao-title h1 {
+    font-size: 28px;
+    font-weight: 700;
+    margin: 0;
+    color: #343a40;
+}
+
+.populacao-subtitle {
+    color: var(--light-text-color);
+    font-size: 16px;
+    margin: 0;
+}
+
+.populacao-header-right {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+}
+
+.novo-registro-button {
+    background-color: var(--primary-color);
+    color: var(--white-color);
+    border: none;
+    padding: 10px 20px;
+    border-radius: 8px;
+    font-weight: 600;
+    cursor: pointer;
+    transition: background-color 0.3s;
+    white-space: nowrap;
+}
+
+.novo-registro-button:hover {
+    background-color: #003a6b;
+}
+
+.populacao-info-box {
+    background-color: #e3f2fd;
+    border: 1px solid #90caf9;
+    border-radius: 8px;
+    padding: 16px 20px;
+    margin-bottom: 24px;
+    display: flex;
+    align-items: flex-start;
+    gap: 12px;
+}
+
+.populacao-info-box svg {
+    color: var(--primary-color);
+    flex-shrink: 0;
+    margin-top: 2px;
+}
+
+.populacao-info-label {
+    font-weight: 600;
+    color: var(--primary-color);
+    flex-shrink: 0;
+}
+
+.populacao-info-box p {
+    margin: 0;
+    color: #1976d2;
+    font-size: 14px;
+    line-height: 1.5;
+}
+
+.populacao-table {
+    width: 100%;
+    border-collapse: collapse;
+}
+
+.populacao-table th,
+.populacao-table td {
+    padding: 12px 16px;
+    text-align: left;
+    border-bottom: 1px solid var(--border-color);
+    font-size: 14px;
+}
+
+.populacao-table th {
+    font-weight: 600;
+    color: var(--light-text-color);
+    background-color: #f8f9fa;
+}
+
+.populacao-table tbody tr:hover {
+    background-color: #f8f9fa;
+}
+
+.populacao-actions {
+    display: flex;
+    gap: 8px;
+}
+
+.action-button {
+    background: none;
+    border: none;
+    cursor: pointer;
+    padding: 6px;
+    border-radius: 4px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    transition: background-color 0.2s;
+}
+
+.edit-button {
+    color: var(--primary-color);
+}
+
+.edit-button:hover {
+    background-color: rgba(0, 75, 136, 0.1);
+}
+
+.delete-button {
+    color: var(--error-color);
+}
+
+.delete-button:hover {
+    background-color: rgba(220, 53, 69, 0.1);
+}
+
+.populacao-modal-content {
+    background: var(--white-color);
+    padding: 0;
+    border-radius: 12px;
+    box-shadow: 0 5px 15px rgba(0, 0, 0, 0.3);
+    width: 100%;
+    max-width: 500px;
+    text-align: left;
+}
+
+.populacao-modal-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 24px 32px;
+    border-bottom: 1px solid var(--border-color);
+}
+
+.populacao-modal-header h3 {
+    font-size: 20px;
+    font-weight: 600;
+    margin: 0;
+    color: #343a40;
+}
+
+.populacao-modal-close-btn {
+    background: none;
+    border: none;
+    font-size: 24px;
+    cursor: pointer;
+    color: var(--light-text-color);
+    padding: 0;
+    line-height: 1;
+    transition: color 0.2s;
+}
+
+.populacao-modal-close-btn:hover {
+    color: var(--text-color);
+}
+
+.populacao-modal-body {
+    padding: 24px 32px;
+}
+
+.populacao-modal-subtitle {
+    color: var(--light-text-color);
+    font-size: 14px;
+    margin-bottom: 24px;
+}
+
+.populacao-form-group {
+    margin-bottom: 20px;
+}
+
+.populacao-form-group label {
+    display: block;
+    font-weight: 500;
+    margin-bottom: 8px;
+    color: #343a40;
+    font-size: 14px;
+}
+
+.populacao-input-wrapper {
+    position: relative;
+    display: flex;
+    align-items: center;
+}
+
+.populacao-input-wrapper input[type="date"] {
+    width: 100%;
+    padding: 12px 40px 12px 12px;
+    border: 2px solid var(--primary-color);
+    border-radius: 8px;
+    font-size: 16px;
+    font-family: 'Poppins', sans-serif;
+    outline: none;
+}
+
+.populacao-input-wrapper input[type="date"]:focus {
+    box-shadow: 0 0 0 3px rgba(0, 75, 136, 0.2);
+}
+
+.populacao-calendar-icon {
+    position: absolute;
+    right: 12px;
+    color: var(--primary-color);
+    pointer-events: none;
+}
+
+.populacao-form-group input[type="number"] {
+    width: 100%;
+    padding: 12px;
+    border: 1px solid var(--border-color);
+    border-radius: 8px;
+    font-size: 16px;
+    font-family: 'Poppins', sans-serif;
+    outline: none;
+}
+
+.populacao-form-group input[type="number"]:focus {
+    border-color: var(--primary-color);
+    box-shadow: 0 0 0 3px rgba(0, 75, 136, 0.2);
+}
+
+.populacao-form-group input.error {
+    border-color: var(--error-color);
+}
+
+.error-message {
+    display: block;
+    color: var(--error-color);
+    font-size: 12px;
+    margin-top: 4px;
+}
+
+.populacao-modal-actions {
+    display: flex;
+    justify-content: flex-end;
+    gap: 12px;
+    padding: 24px 32px;
+    border-top: 1px solid var(--border-color);
+}
+
 /* --- Mapa de Internacao (Review Cards) --- */
 .mapa-internacao-layout {
   padding: 20px 0;

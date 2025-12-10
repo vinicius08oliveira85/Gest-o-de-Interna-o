@@ -1,7 +1,7 @@
 import React from 'react';
 import AppHeader from '../components/AppHeader.tsx';
 
-const CadastroParametros = ({ onBack }: { onBack: () => void }) => {
+const CadastroParametros = ({ onBack, onSelectPage }: { onBack: () => void; onSelectPage?: (page: string) => void }) => {
     const sections = [
         {
             id: 'sincronizacao-solus',
@@ -64,8 +64,12 @@ const CadastroParametros = ({ onBack }: { onBack: () => void }) => {
     ];
 
     const handleSectionClick = (sectionId: string) => {
-        // Placeholder para implementação futura
-        console.log(`Seção clicada: ${sectionId}`);
+        if (sectionId === 'cadastro-populacao-rede' && onSelectPage) {
+            onSelectPage('Cadastro de População/Rede');
+        } else {
+            // Placeholder para outras seções
+            console.log(`Seção clicada: ${sectionId}`);
+        }
     };
 
     return (

@@ -160,3 +160,17 @@ export type PopulacaoRegistro = {
   totalBeneficiariosAtivos: number; // Calculado automaticamente
   atualizadoEm: string; // YYYY-MM-DD
 };
+
+export type SolusStatus = 'Ativo' | 'Inativo' | 'Desconhecido';
+export type SyncStatus = 'Sucesso' | 'Falha' | 'Em andamento';
+
+export type SolusSyncData = {
+  status: SolusStatus;
+  ultimaSync: {
+    status: SyncStatus;
+    processados: number;
+    duracao: string | null;
+    dataHora: string;
+  };
+  conflitos: number;
+};

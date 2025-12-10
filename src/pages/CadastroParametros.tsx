@@ -64,8 +64,12 @@ const CadastroParametros = ({ onBack, onSelectPage }: { onBack: () => void; onSe
     ];
 
     const handleSectionClick = (sectionId: string) => {
-        if (sectionId === 'cadastro-populacao-rede' && onSelectPage) {
+        if (!onSelectPage) return;
+        
+        if (sectionId === 'cadastro-populacao-rede') {
             onSelectPage('Cadastro de População/Região');
+        } else if (sectionId === 'sincronizacao-solus') {
+            onSelectPage('Sincronização Solus');
         } else {
             // Placeholder para outras seções
             console.log(`Seção clicada: ${sectionId}`);

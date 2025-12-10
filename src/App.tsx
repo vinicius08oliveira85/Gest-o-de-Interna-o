@@ -17,6 +17,7 @@ import DetalhesEsperaParecer from './pages/DetalhesEsperaParecer.tsx';
 import DetalhesEsperaDesospitalizacao from './pages/DetalhesEsperaDesospitalizacao.tsx';
 import PainelIndicadoresInternacao from './pages/PainelIndicadoresInternacao.tsx';
 import PainelNCI from './pages/PainelNCI.tsx';
+import CadastroParametros from './pages/CadastroParametros.tsx';
 import Toast from './components/Toast.tsx';
 
 const App = () => {
@@ -275,6 +276,8 @@ const App = () => {
                             subtitle={pageInfo?.description ?? 'Performance de programas e lista de internados.'} 
                             onBack={handleBackToMenu} 
                         />;
+            case 'Cadastro de Parâmetros':
+                return <CadastroParametros onBack={handleBackToMenu} />;
             default:
                 return <MainMenu onSelectPage={handleSelectPage} user={user} onLogout={handleLogout} menuItems={menuItems} />;
         }
